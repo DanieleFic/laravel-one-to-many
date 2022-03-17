@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Category;
 use App\Post;
 
 use App\Http\Controllers\Controller;
@@ -12,7 +13,12 @@ use Illuminate\Support\Str;
 
 
 class PostController extends Controller
-{
+{   
+    protected $validation = [
+        'title' => 'required|max:255',
+        'content' => 'required',
+        'category_id' => 'nullable|exist:categories,id'
+    ];
     /**
      * Display a listing of the resource.
      *
@@ -31,8 +37,11 @@ class PostController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create(Post $post)
-    {
-        return view('admin.posts.create', compact('post'));
+    {   
+        //passiamo i dati della tabella category sul nostro create
+        $categories = Category::all();
+
+        return view('admin.posts.create',  compact('post', 'categories'));
     }
 
     /**
@@ -89,8 +98,11 @@ class PostController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit(Post $post)
-    {
-        return view('admin.posts.edit', compact('post'));
+    {   
+        //passiamo i dati della tabella category sul nostro create
+        $categories = Category::all();
+
+        return view('admin.posts.edit', compact('post', 'categories'));
     }
 
     /**
@@ -111,7 +123,7 @@ class PostController extends Controller
         $form_data = $request->all();
 
         if($post->title == $form_data['title']){
-            $slug = $form_data['slug'];
+            $slug = $post->slug;
         }else{
             $slug = Str::slug($form_data['title']);
             $count = 1;
